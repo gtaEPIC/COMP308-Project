@@ -64,7 +64,7 @@ const login = async (_, {username, password}, {res}) => {
     if (await bcrypt.compare(password, user.password)) {
         user.password = undefined;
         const token = createToken(user);
-        res.cookie('token', token, { httpOnly: true });
+        res.cookie('token', token, { httpOnly: true, expires: new Date(Date.now() + 3600000) });
         return {token};
     } else {
         throw new Error('Incorrect password');
