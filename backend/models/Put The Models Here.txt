@@ -1,1 +1,0 @@
-Filler Text File to make sure the models folder is pushed to the repository. Delete this file when you have added models to the folder.
