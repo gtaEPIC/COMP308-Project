@@ -1,32 +1,69 @@
 const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLID, GraphQLList, GraphQLInt, GraphQLNonNull } = require('graphql');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const {readUser, readUsers, readUserByUsername, createUser, login, logout} = require("./controllers/User.controller");
 const { ObjectId } = require('mongoose').Types;
 
 // Import models below
 
-
-// JWT handling
-const SECRET = process.env.SECRET
-
-function createToken(user) {
-    return jwt.sign({ id: user.id }, process.env.JWT_SECRET || "Super Secret", {
-        expiresIn: '1h'
-    });
-}
-
-function verifyToken(token) {
-    return jwt.verify(token, process.env.JWT_SECRET || "Super Secret");
-}
-
 // Define your GraphQL types
+const VitalsType = new GraphQLObjectType({
+    name: 'Vitals',
+    fields: () => ({
+        id: { type: GraphQLID },
+        patientId: { type: GraphQLID },
+        user: { type: GraphQLID },
+        date: { type: GraphQLString },
+        bodyTemp: { type: GraphQLInt },
+        heartRate: { type: GraphQLInt },
+        bloodPressure: { type: GraphQLInt },
+        respiratoryRate: { type: GraphQLInt }
+    })
+});
 
+const UserType = new GraphQLObjectType({
+    name: 'User',
+    fields: () => ({
+        id: { type: GraphQLID },
+        username: { type: GraphQLString },
+        type: { type: GraphQLString },
+        vitals: {
+            type: new GraphQLList(VitalsType),
+        }
+    })
+});
+
+const LoginType = new GraphQLObjectType({
+    name: 'Login',
+    fields: () => ({
+        token: { type: GraphQLString }
+    })
+});
 
 // Queries
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
-        // Define your queries here
+        // User Queries
+        GetUsers: {
+            type: UserType,
+            args: { },
+            resolve(a, b, c) {
+                return readUsers(a, b, c);
+            }
+        },
+        GetUserById: {
+            type: UserType,
+            args: { id: { type: GraphQLID } },
+            resolve(a, b, c) {
+                return readUser(a, b, c);
+            }
+        },
+        GetUserByUsername: {
+            type: UserType,
+            args: { username: { type: GraphQLString } },
+            resolve(a, b, c) {
+                return readUserByUsername(a, b, c);
+            }
+        }
     }
 });
 
@@ -34,11 +71,41 @@ const RootQuery = new GraphQLObjectType({
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
     fields: {
-        // Define your mutations here
+        // User Mutations
+        AddUser: {
+            type: GraphQLString,
+            args: {
+                username: { type: new GraphQLNonNull(GraphQLString) },
+                password: { type: new GraphQLNonNull(GraphQLString) },
+                type: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(a, b, c) {
+                return createUser(a, b, c);
+            }
+        },
+        Login: {
+            type: LoginType,
+            args: {
+                username: { type: new GraphQLNonNull(GraphQLString) },
+                password: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(a, b, c) {
+                return login(a, b, c);
+            }
+        },
+        Logout: {
+            type: GraphQLString,
+            resolve(a, b, c) {
+                return logout(a, b, c);
+            }
+        }
     }
 });
 
-module.exports = new GraphQLSchema({
-    query: RootQuery,
-    mutation: Mutation
-});
+
+module.exports = {
+    schema: new GraphQLSchema({
+        query: RootQuery,
+        mutation: Mutation
+    })
+};

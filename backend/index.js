@@ -1,11 +1,13 @@
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
+const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 // GraphQL schema
-const schema = require('./schema');
+const {schema} = require('./schema');
+const {verifyToken} = require('./controllers/User.controller');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -21,11 +23,23 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-app.use('/graphql', graphqlHTTP({
+app.use('/graphql', graphqlHTTP((req, res) => ({
     schema,
-    graphiql: true
-}));
+    graphiql: true,
+    context: {
+        req,
+        res,
+        user: (() => {
+            const token = req.headers.authorization || req.cookies['token'] || null;
+            if (!token) return null;
+            return verifyToken(token);
+        })()
+    }
+})));
+
+
 app.use(morgan("dev"));
 
 // Connect to MongoDB
