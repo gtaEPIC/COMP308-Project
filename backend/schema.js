@@ -44,7 +44,7 @@ const RootQuery = new GraphQLObjectType({
     fields: {
         // User Queries
         GetUsers: {
-            type: UserType,
+            type: new GraphQLList(UserType),
             args: { },
             resolve(a, b, c) {
                 return readUsers(a, b, c);
