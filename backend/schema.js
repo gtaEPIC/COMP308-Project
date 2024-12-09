@@ -1,5 +1,6 @@
 const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLID, GraphQLList, GraphQLInt, GraphQLNonNull } = require('graphql');
-const {readUser, readUsers, readUserByUsername, createUser, login, logout} = require("./controllers/User.controller");
+const {readUser, readUsers, readUserByUsername, createUser, login, logout, verifyToken} = require("./controllers/User.controller");
+const {readVitalsByPatientId, createVitals} = require("./controllers/Vitals.controller");
 const { ObjectId } = require('mongoose').Types;
 
 // Import models below
@@ -9,8 +10,8 @@ const VitalsType = new GraphQLObjectType({
     name: 'Vitals',
     fields: () => ({
         id: { type: GraphQLID },
-        patientId: { type: GraphQLID },
-        user: { type: GraphQLID },
+        patient: { type: UserType },
+        user: { type: UserType },
         date: { type: GraphQLString },
         bodyTemp: { type: GraphQLInt },
         heartRate: { type: GraphQLInt },
@@ -63,6 +64,22 @@ const RootQuery = new GraphQLObjectType({
             resolve(a, b, c) {
                 return readUserByUsername(a, b, c);
             }
+        },
+
+        GetMe: {
+            type: UserType,
+            resolve(_, __, {req}) {
+                return verifyToken(req.headers.authorization || req.cookies['token'] || null);
+            }
+        },
+
+        // Vitals Queries
+        GetVitals: {
+            type: new GraphQLList(VitalsType),
+            args: { patient: { type: GraphQLID } },
+            resolve(a, b, c) {
+                return readVitalsByPatientId(a, b, c);
+            }
         }
     }
 });
@@ -98,7 +115,22 @@ const Mutation = new GraphQLObjectType({
             resolve(a, b, c) {
                 return logout(a, b, c);
             }
-        }
+        },
+
+        // Vitals Mutations
+        AddVitals: {
+            type: VitalsType,
+            args: {
+                patient: { type: new GraphQLNonNull(GraphQLID) },
+                bodyTemp: { type: new GraphQLNonNull(GraphQLInt) },
+                heartRate: { type: new GraphQLNonNull(GraphQLInt) },
+                bloodPressure: { type: new GraphQLNonNull(GraphQLInt) },
+                respiratoryRate: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            resolve(a, b, c) {
+                return createVitals(a, b, c);
+            }
+        },
     }
 });
 

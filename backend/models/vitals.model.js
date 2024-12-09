@@ -1,7 +1,7 @@
-const mongoose = requie('mongoose');
+const mongoose = require('mongoose');
 
 const VitalsSchema = mongoose.Schema({
-    patientId: {
+    patient: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
