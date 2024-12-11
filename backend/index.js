@@ -43,7 +43,7 @@ app.use('/graphql', graphqlHTTP((req, res) => ({
 app.use(morgan("dev"));
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/comp308-vitals', { useNewUrlParser: true })
+mongoose.connect(process.env.MONGO_DB || 'mongodb://localhost:27017/comp308-vitals', { useNewUrlParser: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.log(err));
 
