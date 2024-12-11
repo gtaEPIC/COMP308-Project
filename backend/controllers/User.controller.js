@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const SECRET = process.env.SECRET || "Super Secret";
 
 function createToken(user) {
-    return jwt.sign({ id: user.id, type: user.type }, SECRET, {
+    return jwt.sign({ id: user.id, username: user.username, type: user.type }, SECRET, {
         expiresIn: '1h'
     });
 }
