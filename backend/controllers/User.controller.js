@@ -77,6 +77,20 @@ const logout = async (_, __, {res}) => {
     return "Logged out";
 }
 
+// Create Motivational Tip
+const createTip = async (_, {tip, patient}, {user}) => {
+    if (!user) {
+        throw new Error('Unauthorized');
+    }
+    if (user.type !== 'nurse') {
+        throw new Error('Unauthorized');
+    }
+    const patientUser = await User.findOne({ _id: patient });
+    patientUser.tips.push(tip);
+    patientUser.save();
+    return "Tip added";
+}
+
 module.exports = {
     createUser,
     readUsers,
@@ -86,4 +100,5 @@ module.exports = {
     logout,
     verifyToken,
     createToken,
+    createTip,
 }

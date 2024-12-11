@@ -1,5 +1,5 @@
 const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLID, GraphQLList, GraphQLInt, GraphQLNonNull } = require('graphql');
-const {readUser, readUsers, readUserByUsername, createUser, login, logout, verifyToken} = require("./controllers/User.controller");
+const {readUser, readUsers, readUserByUsername, createUser, login, logout, verifyToken, createTip} = require("./controllers/User.controller");
 const {readVitalsByPatientId, createVitals} = require("./controllers/Vitals.controller");
 const { ObjectId } = require('mongoose').Types;
 
@@ -28,6 +28,9 @@ const UserType = new GraphQLObjectType({
         type: { type: GraphQLString },
         vitals: {
             type: new GraphQLList(VitalsType),
+        },
+        tips: {
+            type: new GraphQLList(GraphQLString),
         }
     })
 });
@@ -114,6 +117,16 @@ const Mutation = new GraphQLObjectType({
             type: GraphQLString,
             resolve(a, b, c) {
                 return logout(a, b, c);
+            }
+        },
+        CreateTip: {
+            type: GraphQLString,
+            args: {
+                patient: { type: new GraphQLNonNull(GraphQLID) },
+                tip: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(a, b, c) {
+                return createTip(a, b, c);
             }
         },
 
