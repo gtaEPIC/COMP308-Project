@@ -1,32 +1,68 @@
 import React, { useState } from 'react';
+import {gql, useMutation} from "@apollo/client";
+import {useNavigate, useParams} from "react-router-dom";
 
-const VitalSignsForm = ({ patientId }) => {
+const ADD_VITAL = gql`
+    mutation AddVital($patient: ID!, $bodyTemp: Int!, $heartRate: Int!, $bloodPressure: Int!, $respiratoryRate: Int!) {
+        AddVitals(patient: $patient, bodyTemp: $bodyTemp, heartRate: $heartRate, bloodPressure: $bloodPressure, respiratoryRate: $respiratoryRate) {
+            id
+            patient {
+                id
+                username
+                type
+            }
+            user {
+                id
+                username
+                type
+            }
+            date
+            bodyTemp
+            heartRate
+            bloodPressure
+            respiratoryRate
+        }
+    }
+`;
+
+const VitalSignsForm = () => {
+    const { patientId } = useParams();
   const [bodyTemperature, setBodyTemperature] = useState('');
   const [heartRate, setHeartRate] = useState('');
   const [bloodPressure, setBloodPressure] = useState('');
   const [respiratoryRate, setRespiratoryRate] = useState('');
 
+  const [addVital] = useMutation(ADD_VITAL);
+
+  // Navigation
+    const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch(`/api/patient/${patientId}/newvital`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        bodyTemperature: parseFloat(bodyTemperature),
-        heartRate: parseFloat(heartRate),
-        bloodPressure,
-        respiratoryRate: parseFloat(respiratoryRate)
-      })
-    });
+    try {
+        const response = await addVital({
+            variables: {
+                patient: patientId,
+                bodyTemp: parseInt(bodyTemperature),
+                heartRate: parseInt(heartRate),
+                bloodPressure: parseInt(bloodPressure),
+                respiratoryRate: parseInt(respiratoryRate)
+            }
+        });
 
-    if (response.ok) {
-      alert('Vital signs added successfully');
-      // Redirect to patient's page or clear the form
-    } else {
-      alert('Error adding vital signs');
+        if (response.errors) {
+            alert("An error occurred. Please check the console for more information.");
+            console.error(response.errors);
+        }else{
+            alert("Vital signs added successfully");
+            navigate(`/patient/${patientId}`);
+        }
+    }catch (e) {
+        alert("An error occurred. Please check the console for more information.");
+        console.error(e);
     }
+
+
   };
 
   return (
