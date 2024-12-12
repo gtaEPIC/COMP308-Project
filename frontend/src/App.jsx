@@ -63,10 +63,6 @@ function App() {
                 </Routes>
             </div>
         </Router>
-        <div>
-            <h1>Enter Vital Signs</h1>
-            <VitalSignsForm patientId={patientId} />
-        </div>
     </div>
   )
 }
