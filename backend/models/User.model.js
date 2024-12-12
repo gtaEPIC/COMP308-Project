@@ -20,6 +20,9 @@ const UserSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Vitals',
     }],
+    tips: [{
+        type: String,
+    }]
 });
 
 UserSchema.pre('save', async function(next) {
