@@ -1,25 +1,23 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
-//
-import { ApolloClient, InMemoryCache, createHttpLink  } from '@apollo/client';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+import './index.css';
+
+import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { ApolloProvider } from '@apollo/client';
-//
+
 const link = createHttpLink({
-    uri: process.env.NODE_ENV === 'production' ? "https://comp308-project.onrender.com/graphql" : 'http://localhost:4000/graphql',
-    credentials: 'include'
+  uri: process.env.NODE_ENV === 'production' ? "https://comp308-project.onrender.com/graphql" : 'http://localhost:4000/graphql',
+  credentials: 'include'
 });
-//
+
 const client = new ApolloClient({
-    cache: new InMemoryCache(),
-    link,
+  cache: new InMemoryCache(),
+  link,
 });
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-    <ApolloProvider client={client}>
-
-        <App/>
-
-    </ApolloProvider>
-)
+  <ApolloProvider client={client}>
+    <App />
+  </ApolloProvider>
+);

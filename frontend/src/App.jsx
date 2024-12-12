@@ -4,6 +4,8 @@ import { Container, Nav, Navbar } from "react-bootstrap";
 import LandingPage from "./LandingPage";
 import LoginPage from "./LoginPage";
 import SignUpPage from "./SignUpPage";
+import VitalSignsForm from './components/VitalSignsForm';
+import PatientInfo from './components/PatientInfo';
 
 function App() {
   return (
@@ -30,11 +32,15 @@ function App() {
                 </Container>
             </Navbar>
 
-            <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignUpPage />} />
-            </Routes>
+            <div>
+                <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignUpPage />} />
+                    <Route path="/patient/:patientId/newvital" element={<VitalSignsForm patientId={patientId} />} />
+                    <Route path="/patient/:patientId" element={<PatientInfo />} />
+                </Routes>
+            </div>
         </Router>
     </div>
   );

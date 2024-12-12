@@ -31,15 +31,9 @@ const createUser = async (_, args) => {
     if (await User.findOne({ username })) {
         throw new Error('Username already exists');
     }
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create and save the user
-    const user = new User({ username, password: hashedPassword, type });
-    await user.save();
-
-    return "User created successfully";
+    const user = new User(args);
+    user.save();
+    return "Created";
 };
 
 // Read all users
