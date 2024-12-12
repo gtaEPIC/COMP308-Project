@@ -1,6 +1,8 @@
 const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLID, GraphQLList, GraphQLInt, GraphQLNonNull } = require('graphql');
 const {readUser, readUsers, readUserByUsername, createUser, login, logout, verifyToken} = require("./controllers/User.controller");
 const {readVitalsByPatientId, createVitals} = require("./controllers/Vitals.controller");
+const {EmergencyAlertType} = require("./models/EmergencyAlert");
+const {createAlert, resolveAlert, getAllAlerts, getAlert} = require("./controllers/Alert.controller");
 const { ObjectId } = require('mongoose').Types;
 
 // Import models below
@@ -80,6 +82,21 @@ const RootQuery = new GraphQLObjectType({
             resolve(a, b, c) {
                 return readVitalsByPatientId(a, b, c);
             }
+        },
+
+        // Emergency Alert Queries
+        alert: {
+            type: EmergencyAlertType,
+            args: { id: { type: GraphQLID } },
+            resolve(a, b, c) {
+                return getAlert(a, b, c);
+            }
+        },
+        allAlerts: {
+            type: new GraphQLList(EmergencyAlertType),
+            resolve(a, b, c) {
+                return getAllAlerts(a, b, c);
+            }
         }
     }
 });
@@ -131,6 +148,22 @@ const Mutation = new GraphQLObjectType({
                 return createVitals(a, b, c);
             }
         },
+
+        // Emergency Alert Mutations
+        createAlert: {
+            type: EmergencyAlertType,
+            args: {
+                patientId: { type: GraphQLID }
+            },
+            resolve: createAlert
+        },
+        resolveAlert: {
+            type: GraphQLString,
+            args: {
+                id: { type: GraphQLID }
+            },
+            resolve: resolveAlert
+        }
     }
 });
 
