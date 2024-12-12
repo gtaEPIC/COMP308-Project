@@ -5,7 +5,7 @@ const EmergencyAlertSchema = new mongoose.Schema({
   start: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("EmergencyAlert", EmergencyAlertSchema);
+const EmergencyAlert = mongoose.model("EmergencyAlert", EmergencyAlertSchema);
 
 const { GraphQLObjectType, GraphQLID } = require('graphql');
 
@@ -17,4 +17,4 @@ const EmergencyAlertType = new GraphQLObjectType({
   })
 });
 
-module.exports = { EmergencyAlertType };
+module.exports = { EmergencyAlert, EmergencyAlertType };

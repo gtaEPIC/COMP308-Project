@@ -8,70 +8,7 @@ require('dotenv').config();
 // GraphQL schema
 const {schema} = require('./schema');
 const {verifyToken} = require('./controllers/User.controller');
-const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLID } = require('graphql');
-
-
-
-const EmergencyAlert = require('../../models/EmergencyAlert');
-
-const createAlert = async (parent, args, context) => {
-  const { patientId } = args;
-  const existingAlert = await EmergencyAlert.findOne({ patient: patientId });
-  if (existingAlert) throw new Error("You already have an active alert");
-
-  const alert = new EmergencyAlert({ patient: patientId });
-  await alert.save();
-  return alert;
-};
-
-const resolveAlert = async (parent, args, context) => {
-  const { id } = args;
-  const alert = await EmergencyAlert.findById(id);
-  if (!alert) throw new Error("Alert not found");
-
-  await alert.remove();
-  return "Alert resolved";
-};
-
-module.exports = { createAlert, resolveAlert };
-
-const RootQuery = new GraphQLObjectType({
-    name: 'RootQueryType',
-    fields: {
-      alert: {
-        type: EmergencyAlertType,
-        args: { id: { type: GraphQLID } },
-        resolve(parent, args) {
-          // Resolve logic for fetching an alert by ID
-        }
-      }
-    }
-  });
-  
-  const Mutation = new GraphQLObjectType({
-    name: 'Mutation',
-    fields: {
-      createAlert: {
-        type: EmergencyAlertType,
-        args: {
-          patientId: { type: GraphQLID }
-        },
-        resolve: createAlert
-      },
-      resolveAlert: {
-        type: GraphQLString,
-        args: {
-          id: { type: GraphQLID }
-        },
-        resolve: resolveAlert
-      }
-    }
-  });
-  
-  module.exports = new GraphQLSchema({
-    query: RootQuery,
-    mutation: Mutation
-  });
+ 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
