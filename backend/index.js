@@ -9,8 +9,8 @@ require('dotenv').config();
 const {schema} = require('./schema');
 const {verifyToken} = require('./controllers/User.controller');
 const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLID } = require('graphql');
-const { EmergencyAlertType } = require('./types');
-const { createAlert, resolveAlert } = require('../resolvers');
+
+
 
 const EmergencyAlert = require('../../models/EmergencyAlert');
 
