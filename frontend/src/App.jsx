@@ -7,6 +7,8 @@ import SignUpPage from "./SignUpPage";
 import VitalSignsForm from './components/VitalSignsForm';
 import PatientInfo from './components/PatientInfo';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 function App() {
   return (
     <div style={{
