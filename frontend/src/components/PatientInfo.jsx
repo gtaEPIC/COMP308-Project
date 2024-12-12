@@ -3,20 +3,20 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, gql } from '@apollo/client';
 
 const GET_PATIENT_INFO = gql`
-  query GetPatientInfo($patientId: ID!) {
-    patient(id: $patientId) {
+  query GetUserById($patient: ID!) {
+    GetUserById(id: $patient) {
       id
-      name
-      vitalSigns {
-        bodyTemperature
-        heartRate
-        bloodPressure
-        respiratoryRate
-      }
-      emergencyAlert {
-        id
-        active
-      }
+      username
+      type
+    }
+  }
+`;
+
+const GET_ALERTS = gql`
+  query GetAlerts {
+    allAlerts {
+      id
+      patient
     }
   }
 `;
@@ -35,11 +35,47 @@ const RESOLVE_ALERT = gql`
   }
 `;
 
+const GET_ME = gql`
+  query GetMe {
+    GetMe {
+      id
+      username
+      type
+    }
+  }
+`;
+
+const GET_VITALS = gql`
+  query GetVitals($patient: ID!) {
+    GetVitals(patient: $patient) {
+      id
+      patient {
+        id
+        username
+        type
+      }
+      user {
+        id
+        username
+        type
+      }
+      date
+      bodyTemp
+      heartRate
+      bloodPressure
+      respiratoryRate
+    }
+  }
+`;
+
 const PatientInfo = () => {
   const { patientId } = useParams();
-  const { loading, error, data } = useQuery(GET_PATIENT_INFO, { variables: { patientId } });
+  const { loading, error, data } = useQuery(GET_PATIENT_INFO, { variables: { patient: patientId } });
+  const { loading: alertsLoading, error: alertsError, data: alertsData } = useQuery(GET_ALERTS);
   const [createAlert] = useMutation(CREATE_ALERT);
   const [resolveAlert] = useMutation(RESOLVE_ALERT);
+  const { data: meData } = useQuery(GET_ME);
+    const { loading: vitalsLoading, error: vitalsError, data: vitalsData } = useQuery(GET_VITALS, { variables: { patient: patientId } });
 
   const handleCreateAlert = async () => {
     await createAlert({ variables: { patientId } });
@@ -51,18 +87,18 @@ const PatientInfo = () => {
     window.location.reload();
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  if (loading || alertsLoading || vitalsLoading) return <p>Loading...</p>;
+  if (error || alertsError || vitalsError) return <p>Error: {error.message || alertsError.message || vitalsError.message}</p>;
 
   const { patient } = data;
 
   return (
     <div>
       <h1>Patient Information</h1>
-      {patient.emergencyAlert && patient.emergencyAlert.active ? (
+      {alertsData && alertsData.allAlerts.find(a => a.patient === patientId) ? (
         <div>
           <h2>Active Emergency Alert</h2>
-          {patient.emergencyAlert.active && (
+          {meData && meData.type === 'nurse' && (
             <button onClick={() => handleResolveAlert(patient.emergencyAlert.id)}>Resolve</button>
           )}
         </div>
@@ -71,9 +107,9 @@ const PatientInfo = () => {
       )}
       <h2>Vital Signs</h2>
       <ul>
-        {patient.vitalSigns.map((vital, index) => (
+        {vitalsData.GetVitals.map((vital, index) => (
           <li key={index}>
-            Body Temperature: {vital.bodyTemperature}, Heart Rate: {vital.heartRate}, Blood Pressure: {vital.bloodPressure}, Respiratory Rate: {vital.respiratoryRate}
+            Body Temperature: {vital.bodyTemp}, Heart Rate: {vital.heartRate}, Blood Pressure: {vital.bloodPressure}, Respiratory Rate: {vital.respiratoryRate}
           </li>
         ))}
       </ul>
