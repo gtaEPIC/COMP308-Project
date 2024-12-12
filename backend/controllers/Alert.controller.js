@@ -21,7 +21,7 @@ const resolveAlert = async (parent, args, context) => {
 
 const getAllAlerts = async (parent, args, context) => {
     const {user} = context;
-    if (!user || user.type !== "nurse") throw new Error("Unauthorized");
+    if (!user) throw new Error("Unauthorized");
     return EmergencyAlert.find();
 };
 

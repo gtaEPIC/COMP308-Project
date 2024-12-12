@@ -88,7 +88,10 @@ const PatientInfo = () => {
   };
 
   if (loading || alertsLoading || vitalsLoading) return <p>Loading...</p>;
-  if (error || alertsError || vitalsError) return <p>Error: {error.message || alertsError.message || vitalsError.message}</p>;
+  if (error || alertsError || vitalsError) {
+    console.error(error || alertsError || vitalsError);
+    return <p>Error: Check console</p>;
+  }
 
   const { patient } = data;
 
