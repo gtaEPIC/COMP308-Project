@@ -8,7 +8,7 @@ require('dotenv').config();
 // GraphQL schema
 const {schema} = require('./schema');
 const {verifyToken} = require('./controllers/User.controller');
-
+ 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
