@@ -1,8 +1,9 @@
 const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLID, GraphQLList, GraphQLInt, GraphQLNonNull } = require('graphql');
-const {readUser, readUsers, readUserByUsername, createUser, login, logout, verifyToken} = require("./controllers/User.controller");
+const {readUser, readUsers, readUserByUsername, createUser, login, logout, verifyToken, createTip} = require("./controllers/User.controller");
 const {readVitalsByPatientId, createVitals} = require("./controllers/Vitals.controller");
 const {EmergencyAlertType} = require("./models/EmergencyAlert");
 const {createAlert, resolveAlert, getAllAlerts, getAlert} = require("./controllers/Alert.controller");
+const {agenticRAG} = require("./agenticRag");
 const { ObjectId } = require('mongoose').Types;
 
 // Import models below
@@ -30,6 +31,9 @@ const UserType = new GraphQLObjectType({
         type: { type: GraphQLString },
         vitals: {
             type: new GraphQLList(VitalsType),
+        },
+        tips: {
+            type: new GraphQLList(GraphQLString),
         }
     })
 });
@@ -133,6 +137,16 @@ const Mutation = new GraphQLObjectType({
                 return logout(a, b, c);
             }
         },
+        CreateTip: {
+            type: GraphQLString,
+            args: {
+                patient: { type: new GraphQLNonNull(GraphQLID) },
+                tip: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(a, b, c) {
+                return createTip(a, b, c);
+            }
+        },
 
         // Vitals Mutations
         AddVitals: {
@@ -163,6 +177,17 @@ const Mutation = new GraphQLObjectType({
                 id: { type: GraphQLID }
             },
             resolve: resolveAlert
+        },
+
+        // Rag
+        AIQuery: {
+            type: GraphQLString,
+            args: {
+                query: { type: GraphQLString }
+            },
+            resolve: (_, {query}) => {
+                return agenticRAG(query);
+            }
         }
     }
 });

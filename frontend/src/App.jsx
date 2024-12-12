@@ -1,24 +1,13 @@
-import './App.css'
-import {Container, Nav, Navbar} from "react-bootstrap";
-import {Link, BrowserRouter as Router, Routes, Route} from "react-router-dom";
-import React from 'react';
+import './App.css';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Container, Nav, Navbar } from "react-bootstrap";
+import LandingPage from "./LandingPage";
+import LoginPage from "./LoginPage";
+import SignUpPage from "./SignUpPage";
 import VitalSignsForm from './components/VitalSignsForm';
 import PatientInfo from './components/PatientInfo';
 
-import "bootstrap/dist/css/bootstrap.min.css";
-
-const Home = () => {
-  return (
-    <div>
-      <h1>Welcome to the Home Page</h1>
-    </div>
-  );
-};
-
 function App() {
-
-  const patientId = '12345'; // Replace with actual patient ID
-
   return (
     <div style={{
         minHeight: '100vh',
@@ -35,20 +24,9 @@ function App() {
                     <Navbar.Toggle aria-controls={"basic-navbar-nav"} />
                     <Navbar.Collapse id={"basic-navbar-nav"}>
                         <Nav className={"me-auto"}>
-                            {/* NAVIGATION BAR */}
-                            <Nav.Link as={Link} to={"/"}>
-                                Home
-                            </Nav.Link>
-
-                            <Nav.Link as={Link} to={"/login"}>
-                                Login
-                            </Nav.Link>
-
-                            <Nav.Link as={Link} to={"/signup"}>
-                                Sign Up
-                            </Nav.Link>
-
-                            {/* END OF NAVIGATION BAR */}
+                            <Nav.Link href="/">Home</Nav.Link>
+                            <Nav.Link href="/login">Login</Nav.Link>
+                            <Nav.Link href="/signup">Sign Up</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
@@ -56,18 +34,16 @@ function App() {
 
             <div>
                 <Routes>
-                    {/* ADD ROUTES HERE */}
-                    <Route index element={<Home />} />
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignUpPage />} />
                     <Route path="/patient/:patientId/newvital" element={<VitalSignsForm patientId={patientId} />} />
                     <Route path="/patient/:patientId" element={<PatientInfo />} />
                 </Routes>
             </div>
         </Router>
     </div>
-  )
+  );
 }
 
-
-
-
-export default App
+export default App;
