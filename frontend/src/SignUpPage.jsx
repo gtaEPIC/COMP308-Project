@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { Form, Button, Container, Alert } from "react-bootstrap";
+import {gql, useMutation} from "@apollo/client";
+
+const SIGNUP_MUTATION = gql`
+  mutation AddUser($username: String!, $password: String!, $type: String!) {
+    AddUser(username: $username, password: $password, type: $type)
+  }
+`;
 
 const SignUpPage = () => {
   const [username, setUsername] = useState("");
@@ -9,22 +15,20 @@ const SignUpPage = () => {
   const [userType, setUserType] = useState("patient");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [signup] = useMutation(SIGNUP_MUTATION);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:4000/graphql", {
-        query: `
-          mutation AddUser($username: String!, $password: String!, $type: String!) {
-            AddUser(username: $username, password: $password, type: $type)
-          }
-        `,
-        variables: { username, password, type: userType },
-      });
+      let response = await signup({ variables: { username, password, type: userType } });
+      if (response.errors) {
+          setError("Registration failed. Please try again. " + response.errors[0].message);
+          return;
+      }
       navigate("/login");
     } catch (err) {
       console.error(err);
-      setError("Registration failed. Please try again.");
+      setError("Registration failed. Please try again. " + err.message);
     }
   };
 

@@ -1,30 +1,31 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { Form, Button, Container, Alert } from "react-bootstrap";
+import {gql, useMutation} from "@apollo/client";
+
+const LOGIN_MUTATION = gql`
+  mutation Login($username: String!, $password: String!) {
+    Login(username: $username, password: $password) {
+      token
+    }
+  }
+`;
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [login] = useMutation(LOGIN_MUTATION);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:4000/graphql", {
-        query: `
-          mutation Login($username: String!, $password: String!) {
-            Login(username: $username, password: $password) {
-              token
-            }
-          }
-        `,
-        variables: { username, password },
-      });
-
-      // Save token in cookies
-      document.cookie = `token=${response.data.data.Login.token}`;
+      let response = await login({ variables: { username, password } });
+      if (response.errors) {
+        setError("Invalid username or password.");
+        return;
+      }
       navigate("/");
     } catch (err) {
       console.error(err);

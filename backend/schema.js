@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLID, GraphQLList, GraphQLNonNull } = require('graphql');
-const { createUser, readUsers, readUser, login, logout, createTip, verifyToken } = require('./controllers/User.controller');
-=======
 const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLID, GraphQLList, GraphQLInt, GraphQLNonNull } = require('graphql');
 const {readUser, readUsers, readUserByUsername, createUser, login, logout, verifyToken, createTip} = require("./controllers/User.controller");
 const {readVitalsByPatientId, createVitals} = require("./controllers/Vitals.controller");
@@ -26,7 +22,6 @@ const VitalsType = new GraphQLObjectType({
         respiratoryRate: { type: GraphQLInt }
     })
 });
->>>>>>> 8d985d8afffce80bb20b27e18729ffdc0a47f9ec
 
 const UserType = new GraphQLObjectType({
     name: 'User',
@@ -34,79 +29,124 @@ const UserType = new GraphQLObjectType({
         id: { type: GraphQLID },
         username: { type: GraphQLString },
         type: { type: GraphQLString },
-        tips: { type: new GraphQLList(GraphQLString) },
-    }),
+        vitals: {
+            type: new GraphQLList(VitalsType),
+        },
+        tips: {
+            type: new GraphQLList(GraphQLString),
+        }
+    })
 });
 
 const LoginType = new GraphQLObjectType({
     name: 'Login',
     fields: () => ({
-        token: { type: GraphQLString },
-    }),
+        token: { type: GraphQLString }
+    })
 });
 
+// Queries
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
+        // User Queries
         GetUsers: {
             type: new GraphQLList(UserType),
-            resolve(parent, args, context) {
-                return readUsers(parent, args, context);
-            },
+            args: { },
+            resolve(a, b, c) {
+                return readUsers(a, b, c);
+            }
         },
+        GetUserById: {
+            type: UserType,
+            args: { id: { type: GraphQLID } },
+            resolve(a, b, c) {
+                return readUser(a, b, c);
+            }
+        },
+        GetUserByUsername: {
+            type: UserType,
+            args: { username: { type: GraphQLString } },
+            resolve(a, b, c) {
+                return readUserByUsername(a, b, c);
+            }
+        },
+
         GetMe: {
             type: UserType,
-            resolve(_, __, { req }) {
-                const token = req.headers.authorization?.split(' ')[1] || req.cookies.token;
-                return verifyToken(token);
-            },
+            resolve(_, __, {req}) {
+                return verifyToken(req.headers.authorization || req.cookies['token'] || null);
+            }
         },
-    },
+
+        // Vitals Queries
+        GetVitals: {
+            type: new GraphQLList(VitalsType),
+            args: { patient: { type: GraphQLID } },
+            resolve(a, b, c) {
+                return readVitalsByPatientId(a, b, c);
+            }
+        },
+
+        // Emergency Alert Queries
+        alert: {
+            type: EmergencyAlertType,
+            args: { id: { type: GraphQLID } },
+            resolve(a, b, c) {
+                return getAlert(a, b, c);
+            }
+        },
+        allAlerts: {
+            type: new GraphQLList(EmergencyAlertType),
+            resolve(a, b, c) {
+                return getAllAlerts(a, b, c);
+            }
+        }
+    }
 });
 
+// Mutations
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
     fields: {
+        // User Mutations
         AddUser: {
             type: GraphQLString,
             args: {
                 username: { type: new GraphQLNonNull(GraphQLString) },
                 password: { type: new GraphQLNonNull(GraphQLString) },
-                type: { type: new GraphQLNonNull(GraphQLString) },
+                type: { type: new GraphQLNonNull(GraphQLString) }
             },
-            resolve(parent, args, context) {
-                return createUser(parent, args, context);
-            },
+            resolve(a, b, c) {
+                return createUser(a, b, c);
+            }
         },
         Login: {
             type: LoginType,
             args: {
                 username: { type: new GraphQLNonNull(GraphQLString) },
-                password: { type: new GraphQLNonNull(GraphQLString) },
+                password: { type: new GraphQLNonNull(GraphQLString) }
             },
-            resolve(parent, args, context) {
-                return login(parent, args, context);
-            },
+            resolve(a, b, c) {
+                return login(a, b, c);
+            }
         },
         Logout: {
             type: GraphQLString,
-            resolve(parent, args, context) {
-                return logout(parent, args, context);
-            },
+            resolve(a, b, c) {
+                return logout(a, b, c);
+            }
         },
         CreateTip: {
             type: GraphQLString,
             args: {
-                tip: { type: new GraphQLNonNull(GraphQLString) },
                 patient: { type: new GraphQLNonNull(GraphQLID) },
+                tip: { type: new GraphQLNonNull(GraphQLString) }
             },
-            resolve(parent, args, context) {
-                return createTip(parent, args, context);
-            },
+            resolve(a, b, c) {
+                return createTip(a, b, c);
+            }
         },
-<<<<<<< HEAD
-    },
-=======
 
         // Vitals Mutations
         AddVitals: {
@@ -150,10 +190,12 @@ const Mutation = new GraphQLObjectType({
             }
         }
     }
->>>>>>> 8d985d8afffce80bb20b27e18729ffdc0a47f9ec
 });
 
-module.exports = new GraphQLSchema({
-    query: RootQuery,
-    mutation: Mutation,
-});
+
+module.exports = {
+    schema: new GraphQLSchema({
+        query: RootQuery,
+        mutation: Mutation
+    })
+};
