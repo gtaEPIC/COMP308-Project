@@ -86,6 +86,12 @@ const createTip = async (_, {tip, patient}, {user}) => {
         throw new Error('Unauthorized');
     }
     const patientUser = await User.findOne({ _id: patient });
+    if (!patientUser) {
+        throw new Error('Patient not found');
+    }
+    if (!patientUser.tips) {
+        patientUser.tips = [];
+    }
     patientUser.tips.push(tip);
     patientUser.save();
     return "Tip added";
