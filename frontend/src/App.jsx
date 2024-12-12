@@ -6,6 +6,14 @@ import VitalSignsForm from './components/VitalSignsForm';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
+const Home = () => {
+  return (
+    <div>
+      <h1>Welcome to the Home Page</h1>
+    </div>
+  );
+};
+
 function App() {
 
   const patientId = '12345'; // Replace with actual patient ID
@@ -49,6 +57,7 @@ function App() {
                 <Routes>
                     {/* ADD ROUTES HERE */}
                     <Route index element={<Home />} />
+                    <Route path="/patient/:patientId/newvital" element={<VitalSignsForm patientId={patientId} />} />
                 </Routes>
             </div>
         </Router>
