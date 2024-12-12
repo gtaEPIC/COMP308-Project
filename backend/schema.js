@@ -3,6 +3,7 @@ const {readUser, readUsers, readUserByUsername, createUser, login, logout, verif
 const {readVitalsByPatientId, createVitals} = require("./controllers/Vitals.controller");
 const {EmergencyAlertType} = require("./models/EmergencyAlert");
 const {createAlert, resolveAlert, getAllAlerts, getAlert} = require("./controllers/Alert.controller");
+const {agenticRAG} = require("./agenticRag");
 const { ObjectId } = require('mongoose').Types;
 
 // Import models below
@@ -176,6 +177,17 @@ const Mutation = new GraphQLObjectType({
                 id: { type: GraphQLID }
             },
             resolve: resolveAlert
+        },
+
+        // Rag
+        AIQuery: {
+            type: GraphQLString,
+            args: {
+                query: { type: GraphQLString }
+            },
+            resolve: (_, {query}) => {
+                return agenticRAG(query);
+            }
         }
     }
 });
