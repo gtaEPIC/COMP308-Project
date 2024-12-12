@@ -3,6 +3,7 @@ import {Container, Nav, Navbar} from "react-bootstrap";
 import {Link, BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import React from 'react';
 import VitalSignsForm from './components/VitalSignsForm';
+import PatientInfo from './components/PatientInfo';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -58,6 +59,7 @@ function App() {
                     {/* ADD ROUTES HERE */}
                     <Route index element={<Home />} />
                     <Route path="/patient/:patientId/newvital" element={<VitalSignsForm patientId={patientId} />} />
+                    <Route path="/patient/:patientId" element={<PatientInfo />} />
                 </Routes>
             </div>
         </Router>
