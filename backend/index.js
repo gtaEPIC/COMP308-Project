@@ -8,10 +8,10 @@ require('dotenv').config();
 // GraphQL schema
 const {schema} = require('./schema');
 const {verifyToken} = require('./controllers/User.controller');
- 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+const vitalRoutes = require('./routes/vitalRoutes');
 // Middleware
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "http://localhost:3000");

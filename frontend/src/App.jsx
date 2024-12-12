@@ -1,10 +1,14 @@
 import './App.css'
 import {Container, Nav, Navbar} from "react-bootstrap";
 import {Link, BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import React from 'react';
+import VitalSignsForm from './components/VitalSignsForm';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
+
+  const patientId = '12345'; // Replace with actual patient ID
 
   return (
     <div style={{
@@ -48,8 +52,15 @@ function App() {
                 </Routes>
             </div>
         </Router>
+        <div>
+            <h1>Enter Vital Signs</h1>
+            <VitalSignsForm patientId={patientId} />
+        </div>
     </div>
   )
 }
+
+
+
 
 export default App

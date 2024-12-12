@@ -24,7 +24,33 @@ const createUser = async (_, args) => {
     const user = new User(args);
     user.save();
     return "Created";
-}
+};
+
+// Middleware to authenticate user
+const authenticateUser = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        const decoded = verifyToken(token);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+};
+
+// Middleware to authorize user role
+const authorizeRole = (role) => {
+    return (req, res, next) => {
+        if (req.user.type !== role) {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+        next();
+    };
+};
 
 // Read all users
 
@@ -86,4 +112,6 @@ module.exports = {
     logout,
     verifyToken,
     createToken,
+    authenticateUser,
+    authorizeRole,
 }

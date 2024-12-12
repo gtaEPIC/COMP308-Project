@@ -24,6 +24,16 @@ const readVitalsByPatientId = async (_, {patient}, {user}) => {
     return Vitals.find({ patient }).populate(['user', 'patient']);
 }
 
+const addVitalSigns = async (parent, args, context) => {
+    const { patientId, bodyTemperature, heartRate, bloodPressure, respiratoryRate } = args;
+    const patient = await Patient.findById(patientId);
+    if (!patient) throw new Error("Patient not found");
+  
+    patient.vitalSigns.push({ bodyTemperature, heartRate, bloodPressure, respiratoryRate });
+    await patient.save();
+    return "Vital signs added successfully";
+  };
+
 module.exports = {
     createVitals,
     readVitalsByPatientId
